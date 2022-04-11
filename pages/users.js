@@ -53,13 +53,13 @@ export default function Users({ authenticated, username, items }) {
   );
 }
 
-export async function getServerSideProps({context, res}) {
-  const { Auth, API } = withSSRContext(context);
+export async function getServerSideProps({req, res}) {
+  const { Auth, API } = withSSRContext({req});
   const payload = {};
 
   try {
     const user = await Auth.currentAuthenticatedUser();
-    console.log(user);
+    
     const res = await API.graphql({
       query: listUsers,
     });
