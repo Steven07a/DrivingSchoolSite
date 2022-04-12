@@ -5,7 +5,6 @@ import DataTable from "../components/dataTable";
 import { useMemo } from "react";
 
 export default function Users({ authenticated, username, items }) {
-
   /**
    * This is where we map our data structure and how we want to
    * display the data once it's in the react-table component
@@ -37,7 +36,7 @@ export default function Users({ authenticated, username, items }) {
             accessor: "createdAt",
           },
           {
-            Header: "Last Updated On",
+            Header: "Updated On",
             accessor: "updatedAt",
           },
         ],
@@ -46,33 +45,60 @@ export default function Users({ authenticated, username, items }) {
     []
   );
 
+  const column2 = useMemo(
+    () => [
+      {
+        Header: "First Name",
+        accessor: "FirstName",
+      },
+      {
+        Header: "Last Name",
+        accessor: "LastName",
+      },
+      {
+        Header: "Email",
+        accessor: "Email",
+      },
+      {
+        Header: "Created On",
+        accessor: "createdAt",
+      },
+      {
+        Header: "Last Updated On",
+        accessor: "updatedAt",
+      },
+    ],
+    []
+  );
+
   return (
     <>
-      <DataTable columns={columns} data={items} />
+      <div className="container">
+        <h1 className="m-2">Users</h1>
+        <DataTable columns={column2} data={items} />
+      </div>
     </>
   );
 }
 
-export async function getServerSideProps({req, res}) {
-  const { Auth, API } = withSSRContext({req});
+export async function getServerSideProps({ req, res }) {
+  const { Auth, API } = withSSRContext({ req });
   const payload = {};
 
   try {
     const user = await Auth.currentAuthenticatedUser();
-    
+
     const res = await API.graphql({
       query: listUsers,
     });
-
-    console.log("testing something");
-    console.log(res.data.listUsers.items);
 
     payload.props = {
       authenticated: true,
       username: user.attributes.email,
     };
-  } catch (error) { // if not authenticated
-    res.writeHead(302, {Location: "/"});
+  } catch (error) {
+    // if not authenticated
+    res.writeHead(302, { Location: "/" });
     res.end();
     payload.props = {
       authenticated: false,
@@ -91,6 +117,5 @@ export async function getServerSideProps({req, res}) {
       console.log(error);
     }
   }
-  console.log(payload);
   return payload;
 }
